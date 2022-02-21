@@ -9,7 +9,8 @@ import com.example.navalgamesassistant.databinding.FragmentConverterBinding
 
 class ConverterFragment : Fragment(), View.OnClickListener {
     lateinit var binding: FragmentConverterBinding
-    private var enteredValue: Double = 0.0
+//    private var enteredValue: Double = 0.0
+    private var enteredValue: Int = 0
     private var selectedId: Int = 0
 
     override fun onCreateView(
@@ -32,9 +33,9 @@ class ConverterFragment : Fragment(), View.OnClickListener {
         binding.buttonNull.setOnClickListener(this)
         binding.buttonMinus.setOnClickListener(this)
         binding.buttonPlus.setOnClickListener(this)
-        binding.buttonMinus1.setOnClickListener(this)
+//        binding.buttonMinus1.setOnClickListener(this)
+//        binding.buttonPlus1.setOnClickListener(this)
         binding.buttonMinus10.setOnClickListener(this)
-        binding.buttonPlus1.setOnClickListener(this)
         binding.buttonPlus10.setOnClickListener(this)
     }
 
@@ -53,12 +54,23 @@ class ConverterFragment : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         val buttonIndex = translateIdToIndex(v!!.id)
+
+        enteredValue = binding.editTextValue.text.toString().toInt()
+        when (buttonIndex) {
+            2 -> enteredValue -= 1
+            3 -> enteredValue += 1
+            5 -> enteredValue -= 10
+            7 -> enteredValue += 10
+            else -> enteredValue = 0
+        }
+
+        /*
         enteredValue = binding.editTextValue.text.toString().toDouble()
         when (selectedId) {
             R.id.check_inch -> {
                 when (buttonIndex) {
-                    1 -> enteredValue -= 0.1
-                    2 -> enteredValue += 0.1
+                    2 -> enteredValue -= 0.1
+                    3 -> enteredValue += 0.1
                     4 -> enteredValue -= 1.0
                     5 -> enteredValue -= 10.0
                     6 -> enteredValue += 1.0
@@ -68,8 +80,8 @@ class ConverterFragment : Fragment(), View.OnClickListener {
             }
             else -> {
                 when (buttonIndex) {
-                    1 -> enteredValue -= 0.25
-                    2 -> enteredValue += 0.25
+                    2 -> enteredValue -= 0.25
+                    3 -> enteredValue += 0.25
                     4 -> enteredValue -= 1.0
                     5 -> enteredValue -= 10.0
                     6 -> enteredValue += 1.0
@@ -79,18 +91,20 @@ class ConverterFragment : Fragment(), View.OnClickListener {
             }
         }
         enteredValue = String.format("%.2f", enteredValue).toDouble()
+         */
+
         binding.editTextValue.setText(enteredValue.toString())
     }
 
     private fun translateIdToIndex(id: Int): Int {
         var index = -1
         when (id) {
-            R.id.button_minus   -> index = 1
-            R.id.button_plus    -> index = 2
-            R.id.button_null    -> index = 3
-            R.id.button_minus1  -> index = 4
+            R.id.button_null    -> index = 1
+            R.id.button_minus   -> index = 2
+            R.id.button_plus    -> index = 3
+//            R.id.button_minus1  -> index = 4
             R.id.button_minus10 -> index = 5
-            R.id.button_plus1   -> index = 6
+//            R.id.button_plus1   -> index = 6
             R.id.button_plus10  -> index = 7
         }
         return index
@@ -104,21 +118,37 @@ class ConverterFragment : Fragment(), View.OnClickListener {
     }
 
     private fun getResult(): String {
-        enteredValue = binding.editTextValue.text.toString().toDouble()
+//        enteredValue = binding.editTextValue.text.toString().toDouble()
+        enteredValue = binding.editTextValue.text.toString().toInt()
+
         val converterValue = when (selectedId) {
             R.id.check_inch -> 25.4
             else -> 0.0394
         }
-        var targetValue = (enteredValue * converterValue)
-        targetValue = String.format("%.3f", targetValue).toDouble()
-        val targetValue2 = targetValue.toString()
+
+        val targetValue = (enteredValue * converterValue).toInt().toString()
+//        targetValue = String.format("%.3f", targetValue).toDouble()
 
         val unit = when (selectedId) {
             R.id.check_inch -> getString(R.string.millimetre_symbol)
             else -> getString(R.string.inch_symbol)
         }
-        return targetValue2 + unit
+        return targetValue + unit
     }
+
+    private fun isFieldCorrect(): Boolean {
+        binding.apply {
+            if (editTextValue.text.isNullOrEmpty()) {
+                editTextValue.error = getString(R.string.edit_field_empty)
+                return editTextValue.text.isNullOrEmpty()
+            } else if (editTextValue.text.toString().toInt() < 0) {
+                editTextValue.error = getString(R.string.edit_field_non_positive)
+                return editTextValue.text.toString().toInt() < 0
+            } else return false
+        }
+    }
+
+    /*
 
     private fun isFieldCorrect(): Boolean {
         binding.apply {
@@ -131,5 +161,7 @@ class ConverterFragment : Fragment(), View.OnClickListener {
             } else return false
         }
     }
+
+     */
 
 }
